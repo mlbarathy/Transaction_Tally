@@ -1,5 +1,5 @@
 import pymysql
-from app.config import MYSQL_CON
+from app.utils.config import MYSQL_CON
 
 class MySQLHandler:
     def __init__(self):
@@ -8,15 +8,27 @@ class MySQLHandler:
     def insert_or_update(self, data, main_table, history_table, pk):
         cursor = self.conn.cursor()
 
-        quoted_pk = f"`{pk}`"
+        # Handle both single and composite primary keys
+        pk_list = pk if isinstance(pk, list) else [pk]
         quoted_main_table = f"`{main_table}`"
         quoted_history_table = f"`{history_table}`"
 
         for record in data:
-            # Fetch all rows with matching pk
+            # Build WHERE clause for composite keys
+            where_conditions = []
+            where_values = []
+            
+            for pk_col in pk_list:
+                quoted_pk_col = f"`{pk_col}`"
+                where_conditions.append(f"{quoted_pk_col} = %s")
+                where_values.append(record[pk_col])
+            
+            where_clause = " AND ".join(where_conditions)
+            
+            # Fetch all rows with matching composite pk
             cursor.execute(
-                f"SELECT * FROM {quoted_main_table} WHERE {quoted_pk} = %s",
-                (record[pk],)
+                f"SELECT * FROM {quoted_main_table} WHERE {where_clause}",
+                tuple(where_values)
             )
             existing_rows = cursor.fetchall()
             columns = [desc[0] for desc in cursor.description]
@@ -24,8 +36,8 @@ class MySQLHandler:
             if existing_rows:
                 # Get max version from history table
                 cursor.execute(
-                    f"SELECT MAX(version) FROM {quoted_history_table} WHERE {quoted_pk} = %s",
-                    (record[pk],)
+                    f"SELECT MAX(version) FROM {quoted_history_table} WHERE {where_clause}",
+                    tuple(where_values)
                 )
                 max_ver_result = cursor.fetchone()
                 version_to_insert = int(max_ver_result[0]) + 1 if max_ver_result[0] is not None else 1
@@ -43,9 +55,9 @@ class MySQLHandler:
                     )
 
                 update_cols = ', '.join([f"`{key}` = %s" for key in record.keys()])
-                update_vals = list(record.values()) + [record[pk]]
+                update_vals = list(record.values()) + where_values
                 cursor.execute(
-                    f"UPDATE {quoted_main_table} SET {update_cols} WHERE {quoted_pk} = %s",
+                    f"UPDATE {quoted_main_table} SET {update_cols} WHERE {where_clause}",
                     update_vals
                 )
             else:

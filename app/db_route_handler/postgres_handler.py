@@ -1,5 +1,5 @@
 import psycopg2
-from app.config import POSTGRESS_CON
+from app.utils.config import POSTGRESS_CON
 
 class PostgresHandler:
     def __init__(self):
@@ -7,28 +7,41 @@ class PostgresHandler:
 
     def insert_or_update(self, data, main_table, history_table, pk):
         cursor = self.conn.cursor()
-        quoted_pk = f'"{pk}"'
+        
+        # Handle both single and composite primary keys
+        pk_list = pk if isinstance(pk, list) else [pk]
         quoted_main_table = f'"{main_table}"'
         quoted_history_table = f'"{history_table}"'
 
         for record in data:
+            # Build WHERE clause for composite keys
+            where_conditions = []
+            where_values = []
+            
+            for pk_col in pk_list:
+                quoted_pk_col = f'"{pk_col}"'
+                where_conditions.append(f"{quoted_pk_col} = %s")
+                where_values.append(record[pk_col])
+            
+            where_clause = " AND ".join(where_conditions)
+            
             cursor.execute(
-                f"SELECT * FROM {quoted_main_table} WHERE {quoted_pk} = %s",
-                (record[pk],)
+                f"SELECT * FROM {quoted_main_table} WHERE {where_clause}",
+                tuple(where_values)
             )
             existing = cursor.fetchone()
             if existing:
                 columns = [desc[0] for desc in cursor.description]
                 existing_dict = dict(zip(columns, existing))
-                cursor.execute(f"SELECT * FROM {quoted_main_table} WHERE {quoted_pk} = %s", (record[pk],))
+                cursor.execute(f"SELECT * FROM {quoted_main_table} WHERE {where_clause}", tuple(where_values))
                 existing_rows = cursor.fetchall()
 
                 if existing_rows:
                     columns = [desc[0] for desc in cursor.description]
 
                     cursor.execute(
-                        f"SELECT MAX(version) FROM {quoted_history_table} WHERE {quoted_pk} = %s",
-                        (record[pk],)
+                        f"SELECT MAX(version) FROM {quoted_history_table} WHERE {where_clause}",
+                        tuple(where_values)
                     )
                     max_ver_result = cursor.fetchone()[0]
                     version_to_insert = int(max_ver_result) + 1 if max_ver_result is not None else 1
@@ -45,9 +58,9 @@ class PostgresHandler:
                         )
 
                     update_cols = ', '.join([f'"{key}" = %s' for key in record.keys()])
-                    update_vals = list(record.values()) + [record[pk]]
+                    update_vals = list(record.values()) + where_values
                     cursor.execute(
-                        f"UPDATE {quoted_main_table} SET {update_cols} WHERE {quoted_pk} = %s",
+                        f"UPDATE {quoted_main_table} SET {update_cols} WHERE {where_clause}",
                         update_vals
                     )
             else:

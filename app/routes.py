@@ -1,6 +1,7 @@
 # app/routes.py
 from flask import Blueprint, request, jsonify
 from app.db_route_handler import get_db_handler
+from app.utils.functions import get_db_config
 
 routes_bp = Blueprint('routes', __name__)
 db_handler = get_db_handler()
@@ -13,11 +14,14 @@ def bank_json_insert():
         if not data:
             return jsonify({'status': 'error', 'message': 'No data provided'}), 400
 
+        # Get the configured primary key (single or composite)
+        db_conf = get_db_config()
+        
         db_handler.insert_or_update(
             data=data,
-            main_table="bank_json",
-            history_table="bank_json_history",
-            pk="MsgId"
+            main_table=db_conf["main_table"],
+            history_table=db_conf["history_table"],
+            pk=db_conf["pk"]
         )
 
         return jsonify({'status': 'success', 'message': 'Data inserted successfully'}), 200

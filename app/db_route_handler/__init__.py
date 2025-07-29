@@ -1,7 +1,6 @@
-import os
 from app.db_route_handler.mysql_handler import MySQLHandler
 from app.db_route_handler.postgres_handler import PostgresHandler
-from app.config import  TARGET_DB
+from app.utils.config import  TARGET_DB
 
 
 def get_db_handler():

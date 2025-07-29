@@ -1,6 +1,4 @@
 from app.utils.functions import *
-
-
 load_dotenv()
 
 def start_spark_stream():
