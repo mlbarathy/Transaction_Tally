@@ -5,7 +5,7 @@ import uuid
 import os
 
 KAFKA_BROKER = 'localhost:9092'
-TOPIC = 'json_events'
+TOPIC = 'test-topic'
 SAMPLE_FILE = 'sample_json.txt'  # Path to your sample file
 
 producer = Producer({'bootstrap.servers': KAFKA_BROKER})

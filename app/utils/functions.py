@@ -6,6 +6,8 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, lit, max as spark_max, coalesce
 from app.utils.functions import *
 import uuid
+from dotenv import load_dotenv
+load_dotenv()
 
 def load_json_query():
     PARENT_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -72,7 +74,7 @@ def create_table_if_not_exists(df, table_name, pk_field, engine, include_version
     columns = []
 
     for field in df.schema.fields:
-        # You can add better type mapping here if needed
+        # add better type mapping here if needed
         if db_type == "MYSQL":
             columns.append(Column(field.name, String(255)))
         else:

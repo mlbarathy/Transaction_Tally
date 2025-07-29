@@ -8,9 +8,10 @@ def start_spark_stream():
     spark.sparkContext.setLogLevel("ERROR")
 
     db_conf = get_db_config()
-    print("🚀 Spark streaming job started.")
-    print(f"📡 Kafka Topic: {KAFKA_TOPIC}")
-    print(f"🗄️  Target {TARGET_DB} Table: {db_conf['main_table']}")
+    print("🚀 Spark Streaming Job Started.")
+    print(f"📡 Kafka-Topic: {KAFKA_TOPIC}")
+    print(f"🗄️  Target DB : {TARGET_DB} - Target Trxn Table : {db_conf['main_table']} - "
+          f"Target History Table : {db_conf['history_table']} ")
 
     kafka_df = (
         spark.readStream
@@ -19,7 +20,7 @@ def start_spark_stream():
         .option("multiLine", "true")
         .option("subscribe", KAFKA_TOPIC)
         .option("startingOffsets", "latest")
-        .option("maxOffsetsPerTrigger", 1)
+        .option("maxOffsetsPerTrigger", 10000)
         .load()
     )
 

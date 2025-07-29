@@ -11,43 +11,46 @@ load_dotenv()
 
 # Set target DB: "POSTGRES", "MSSQL", or "MYSQL"
 
-TARGET_DB = "MYSQL"
+TARGET_DB = "POSTGRES"
 
 # Kafka settings
 KAFKA_BOOTSTRAP_SERVERS = "localhost:9092"
-KAFKA_TOPIC = "json_events"
+KAFKA_TOPIC = "test-topic"
 CHECKPOINT_LOC = f"/Users/lakshimi.mariappan/Desktop/Personal/Project/Bank_V1_28May/checkpoints/flaskstream_{uuid.uuid4()}"
 
 # ============================ #
 #       POSTGRES CONFIG       #
 # ============================ #
-POSTGRES_USER = "postgress"
-POSTGRES_PASSWORD = "postgress"
-POSTGRES_DB = "mydatabase"
-POSTGRES_HOST = "localhost"
-POSTGRES_PORT = "5433"
-POSTGRES_TABLE = "bank_json"
-POSTGRES_HISTORY_TABLE = "bank_json_history"
-POSTGRESS_TABLE_PKID = "MsgId"
-POSTGRES_DRIVER = "org.postgresql.Driver"
+POSTGRES_USER = os.environ['POSTGRES_USER']
+POSTGRES_PASSWORD = os.environ['POSTGRES_PASSWORD']
+POSTGRES_DB = os.environ['POSTGRES_DB']
+POSTGRES_HOST = os.environ['POSTGRES_HOST']
+POSTGRES_PORT = os.environ['POSTGRES_PORT']
+POSTGRES_TABLE = os.environ['POSTGRES_TABLE']
+POSTGRES_HISTORY_TABLE = os.environ['POSTGRES_HISTORY_TABLE']
+POSTGRESS_TABLE_PKID = os.environ['POSTGRESS_TABLE_PKID']
+POSTGRES_DRIVER = os.environ['POSTGRES_DRIVER']
 
 POSTGRES_URL = f"jdbc:postgresql://{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
 POSTGRES_CON_URL = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
 
+POSTGRES_AUTH = {
+    "user": POSTGRES_USER,
+    "password": POSTGRES_PASSWORD
+}
+
 POSTGRESS_CON = {
     "dbname": POSTGRES_DB,
-    "user": POSTGRES_USER,
-    "password": POSTGRES_PASSWORD,
     "host": POSTGRES_HOST,
     "port": POSTGRES_PORT,
+    **POSTGRES_AUTH
 }
 
 POSTGRESS_SPARK_CONF = {
     "url": POSTGRES_URL,
     "dbtable": POSTGRES_TABLE,
-    "user": POSTGRES_USER,
-    "password": POSTGRES_PASSWORD,
-    "driver": POSTGRES_DRIVER
+    "driver": POSTGRES_DRIVER,
+    **POSTGRES_AUTH
 }
 
 # ============================ #

@@ -11,7 +11,7 @@ from pyspark.sql.functions import col, from_json
 from pyspark.sql.types import StructType, StringType, IntegerType
 
 KAFKA_BROKER = "localhost:9092"
-TOPIC = "user_interactions"
+TOPIC = "test-topic"
 
 producer = Producer({'bootstrap.servers': KAFKA_BROKER})
 
