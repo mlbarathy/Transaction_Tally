@@ -11,3 +11,4 @@ pymongo==3.12.3
 pyodbc
 mysql-connector-python>=8.0.33
 pymysql
+py4j==0.10.9.7

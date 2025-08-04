@@ -5,14 +5,11 @@ from pyspark.sql import SparkSession
 from app.utils.functions import *
 import uuid
 from dotenv import load_dotenv
-from pyspark.sql.functions import col, coalesce, lit, max as spark_max,struct, col
+from pyspark.sql.functions import col, coalesce, lit, max as spark_max
 from sqlalchemy import inspect
 from sqlalchemy.sql import text
 
-
 load_dotenv()
-
-
 
 def load_json_query():
     PARENT_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -162,7 +159,7 @@ def get_changed_ids_and_filter(df, pk):
                 return target_df.filter(lit(False))  # Empty result
             
             # Build OR conditions for composite keys instead of using struct.isin()
-            from pyspark.sql.functions import lit
+
             conditions = None
             for pk_values in changed_ids:
                 condition = None
@@ -233,7 +230,7 @@ def writestream_non_empty_batches(batch_df, batch_id):
             update_records = result_df.filter(col(pk[0]).isin(existing_ids))
         else:
             # Build conditions for composite keys instead of using struct.isin()
-            from pyspark.sql.functions import lit
+
             if not existing_ids:
                 new_records = result_df
                 update_records = result_df.filter(lit(False))  # Empty result
@@ -283,6 +280,7 @@ def writestream_non_empty_batches(batch_df, batch_id):
             print(f"📦 Changed record count: {changed_records.count()}")
 
             if not changed_records.rdd.isEmpty():
+
                 # Archive old changed records into history with versioning
                 history_df = read_table(spark, db_conf, db_conf["history_table"])
                 max_versions_df = history_df.groupBy(*pk).agg(spark_max("version").alias("max_version"))
