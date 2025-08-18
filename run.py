@@ -3,7 +3,7 @@ from flask import Flask
 import threading
 from app.spark_job import start_spark_stream
 from app.routes import routes_bp
-from my_spark_module import run_spark_job
+import time
 
 app = Flask(__name__)
 app.register_blueprint(routes_bp)
@@ -18,8 +18,7 @@ if __name__ == "__main__":
     mode = os.getenv("APP_MODE", "service")  # default = service
 
     if mode == "job":
-        # Just run Spark once and exit
-        run_spark_job()
+        time.sleep(10)
     else:
         # Long-running service mode
         start_spark_once()
