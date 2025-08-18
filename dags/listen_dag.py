@@ -4,6 +4,7 @@ import os
 from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import KubernetesPodOperator
 from airflow.operators.python import PythonOperator
 from airflow.utils.dates import days_ago
+from airflow.kubernetes.secret import Secret
 
 K8S_CONN_ID = "k8s_conn_id"
 
@@ -37,7 +38,26 @@ with DAG(
         image="ghcr.io/vishnu-thirumangalath/docker-images/transaction-tally:latest",
         cmds=["python", "run.py"],
         get_logs=True,
-        do_xcom_push=True,   # capture pod info
+        do_xcom_push=True,
+        is_delete_operator_pod=True,
+
+        # Pass Postgres connection details as environment variables
+        env_vars={
+            "POSTGRES_HOST": "transaction-db-postgresql.test.svc.cluster.local",
+            "POSTGRES_PORT": "5432",
+            "POSTGRES_USER": "postgres",
+            "POSTGRES_DB": "postgres"
+        },
+
+        # Mount password securely from k8s secret into env
+        secrets=[
+            Secret(
+                deploy_type="env",
+                deploy_target="POSTGRES_PASSWORD",
+                secret="transaction-db-postgresql",
+                key="postgres-password"
+            )
+        ]
     )
 
     check_pod_xcom = PythonOperator(
