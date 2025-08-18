@@ -1,7 +1,19 @@
 from airflow import DAG
+import os
 from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import KubernetesPodOperator
 from airflow.operators.python import PythonOperator
 from airflow.utils.dates import days_ago
+
+K8S_CONN_ID = "k8s_conn_id"
+
+# Create in-cluster Kubernetes connection
+os.environ[f"AIRFLOW_CONN_{K8S_CONN_ID.upper()}"] = json.dumps({
+    "conn_type": "kubernetes",
+    "extra": {
+        "in_cluster": True,
+        "namespace": "test"
+    }
+})
 
 def check_xcom(**context):
     pod_info = context['ti'].xcom_pull(task_ids="run_transaction_tally")
@@ -19,7 +31,8 @@ with DAG(
     run_python_app = KubernetesPodOperator(
         task_id="run_transaction_tally",
         name="transaction-tally",
-        namespace="default",
+        namespace="test",
+        service_account_name="dagsvc",
         image="ghcr.io/vishnu-thirumangalath/docker-images/tansaction-tally:latest",
         cmds=["python", "run.py"],
         get_logs=True,
