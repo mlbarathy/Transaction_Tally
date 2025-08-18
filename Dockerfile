@@ -1,6 +1,17 @@
-FROM python:3.11-slim 
-WORKDIR /app 
-COPY requirements.txt . 
-RUN pip install --no-cache-dir -r requirements.txt 
-COPY . . 
+FROM python:3.11-slim-bookworm
+
+# Install Java + procps
+RUN apt-get update && apt-get install -y openjdk-17-jdk procps && rm -rf /var/lib/apt/lists/*
+
+# Set JAVA_HOME
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
+
+# Install dependencies
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+WORKDIR /app
+COPY . .
+
 CMD ["python", "run.py"]
