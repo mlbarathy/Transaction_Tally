@@ -37,6 +37,7 @@ with DAG(
         service_account_name="dagsvc",
         image="ghcr.io/vishnu-thirumangalath/docker-images/transaction-tally:latest",
         cmds=["python", "run.py"],
+        env_vars={"APP_MODE": "job"},
         get_logs=True,
         do_xcom_push=True,
         is_delete_operator_pod=True,
