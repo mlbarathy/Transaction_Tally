@@ -37,7 +37,6 @@ with DAG(
         service_account_name="dagsvc",
         image="ghcr.io/vishnu-thirumangalath/docker-images/transaction-tally:latest",
         cmds=["python", "run.py"],
-        env_vars={"APP_MODE": "job"},
         get_logs=True,
         do_xcom_push=True,
         is_delete_operator_pod=True,
@@ -47,7 +46,8 @@ with DAG(
             "POSTGRES_HOST": "transaction-db-postgresql.test.svc.cluster.local",
             "POSTGRES_PORT": "5432",
             "POSTGRES_USER": "postgres",
-            "POSTGRES_DB": "postgres"
+            "POSTGRES_DB": "postgres",
+            "APP_MODE": "job"
         },
 
         # Mount password securely from k8s secret into env
