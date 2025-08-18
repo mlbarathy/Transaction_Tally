@@ -34,7 +34,7 @@ with DAG(
         name="transaction-tally",
         namespace="test",
         service_account_name="dagsvc",
-        image="ghcr.io/vishnu-thirumangalath/docker-images/tansaction-tally:latest",
+        image="ghcr.io/vishnu-thirumangalath/docker-images/transaction-tally:latest",
         cmds=["python", "run.py"],
         get_logs=True,
         do_xcom_push=True,   # capture pod info
