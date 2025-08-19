@@ -41,7 +41,7 @@ with DAG(
     # 2. Sensor pod (keeps checking Flask /health endpoint until ready)
     flask_sensor = KubernetesPodOperator(
         task_id="flask_sensor",
-        name="flask-sensor",
+        name="flask-sensor-curl",
         namespace="test",
         service_account_name="dagsvc",
         image="curlimages/curl:8.2.1",
@@ -83,4 +83,4 @@ with DAG(
     )
 
     # DAG flow
-    [run_python_app,flask_sensor] >> spark_submit
+    run_python_app >> flask_sensor >> spark_submit
