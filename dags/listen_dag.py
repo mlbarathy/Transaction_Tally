@@ -50,7 +50,7 @@ with DAG(
             """
             for i in $(seq 1 30); do
               echo "Checking Flask health... attempt $i";
-              curl -s http://transaction-tally.test.svc.cluster.local:5000/health && exit 0;
+              curl -s http://transaction-tally.test.svc.cluster.local:5000/health && (echo 'service ok'; exit 0);
               sleep 5;
             done;
             echo "Flask did not become ready in time" && exit 1
