@@ -83,4 +83,4 @@ with DAG(
     )
 
     # DAG flow
-    run_python_app >> flask_sensor >> spark_submit
+    [run_python_app,flask_sensor] >> spark_submit
