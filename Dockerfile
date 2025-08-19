@@ -14,4 +14,5 @@ RUN pip install -r requirements.txt
 WORKDIR /app
 COPY . .
 
+EXPOSE 5000
 CMD ["python", "run.py"]
