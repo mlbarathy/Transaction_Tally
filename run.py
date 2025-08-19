@@ -8,18 +8,18 @@ import time
 app = Flask(__name__)
 app.register_blueprint(routes_bp)
 
+@app.route("/health")
+def health():
+    return {"status": "ok"}, 200
+
+
 
 def start_spark_once():
     spark_thread = threading.Thread(target=start_spark_stream, daemon=True)
     spark_thread.start()
 
 
-if __name__ == "__main__":
-    mode = os.getenv("APP_MODE", "service")  # default = service
+if __name__ == "__main__": 
 
-    if mode == "job":
-        time.sleep(10)
-    else:
-        # Long-running service mode
-        start_spark_once()
-        app.run(host="0.0.0.0", port=5000, debug=False, use_reloader=False)
+    start_spark_once()
+    app.run(host="0.0.0.0", port=5000, debug=False, use_reloader=False)
