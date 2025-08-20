@@ -15,4 +15,5 @@ WORKDIR /app
 COPY . .
 
 EXPOSE 5000
-CMD ["python", "run.py"]
+ENTRYPOINT ["python"]
+CMD ["app.py"]
