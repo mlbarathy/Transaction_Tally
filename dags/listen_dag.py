@@ -22,6 +22,9 @@ with DAG(
         get_logs=False,                 # don’t tail logs forever
         do_xcom_push=False,             # no log XCom
         is_delete_operator_pod=False,   # keep Flask alive after task ends
+	labels={                       #  add this block
+            "app": "transaction-tally"
+    	},
         env_vars={
             "POSTGRES_HOST": "transaction-db-postgresql.test.svc.cluster.local",
             "POSTGRES_PORT": "5432",
