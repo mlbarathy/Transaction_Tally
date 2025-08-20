@@ -29,7 +29,9 @@ with DAG(
             "POSTGRES_HOST": "transaction-db-postgresql.test.svc.cluster.local",
             "POSTGRES_PORT": "5432",
             "POSTGRES_USER": "postgres",
-            "POSTGRES_DB": "postgres"
+            "POSTGRES_DB": "postgres",
+            "KAFKA_BOOTSTRAP_SERVERS": "kafka-kafka-bootstrap.kafka:9092",
+            "KAFKA_TOPIC": "test-topic"
         },
         secrets=[
             Secret(
@@ -66,6 +68,6 @@ with DAG(
         get_logs=True,
         is_delete_operator_pod=True,
     )
-    
+
     # DAG flow (sequential)
     [run_python_app,flask_sensor]
