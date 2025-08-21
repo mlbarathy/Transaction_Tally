@@ -60,7 +60,13 @@ def create_spark_session():
         SparkSession.builder \
             .appName("KafkaToDB") \
             .config("spark.jars.packages", f"org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0,{db_conf['package']}") \
-            .master("local[*]") \
+            # --- Fix BlockManager/driver identity ---
+            .config("spark.driver.bindAddress", "0.0.0.0") \
+            .config("spark.driver.host", os.environ.get("SPARK_LOCAL_IP", "127.0.0.1")) \
+            .config("spark.driver.port", os.environ.get("SPARK_DRIVER_PORT", "7078")) \
+            .config("spark.blockManager.port", os.environ.get("SPARK_BLOCKMANAGER_PORT", "7079")) \
+            # keep local for now; override via env when needed
+            .master(os.environ.get("SPARK_MASTER", "local[*]"))
             .getOrCreate()
     )
 

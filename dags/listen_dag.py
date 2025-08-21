@@ -32,6 +32,12 @@ with DAG(
             "POSTGRES_DB": "postgres",
             "KAFKA_BOOTSTRAP_SERVERS": "kafka-kafka-bootstrap.kafka:9092",
             "KAFKA_TOPIC": "test-topic"
+
+            # --- spark identity fixes --- 
+            # "SPARK_LOCAL_HOSTNAME": "localhost", 
+            # "SPARK_LOCAL_IP": "127.0.0.1", 
+            # "SPARK_DRIVER_PORT": "7078", 
+            # "SPARK_BLOCKMANAGER_PORT": "7079",
         },
         secrets=[
             Secret(
