@@ -14,7 +14,7 @@ with DAG(
     # 1. Run Flask app pod (kept alive, task ends immediately after creation)
     run_python_app = KubernetesPodOperator(
         task_id="run_transaction_tally",
-        name="transaction-tally-{{ ds-nodash }}",
+        name="transaction-tally",
         namespace="test",
         service_account_name="dagsvc",
         image="ghcr.io/vishnu-thirumangalath/docker-images/transaction-tally:latest",
