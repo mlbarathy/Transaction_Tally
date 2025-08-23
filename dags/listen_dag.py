@@ -24,7 +24,7 @@ with DAG(
         namespace="test",
         service_account_name="dagsvc",
         image="ghcr.io/vishnu-thirumangalath/docker-images/transaction-tally:latest",
-        cmds=["python", "run.py"],
+        cmds=["python", "/app/run.py"],
         get_logs=False,                 # don’t tail logs forever
         do_xcom_push=False,             # no log XCom
         is_delete_operator_pod=True,   # keep Flask alive after task ends
