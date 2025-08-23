@@ -27,7 +27,7 @@ with DAG(
         cmds=["python", "run.py"],
         get_logs=False,                 # don’t tail logs forever
         do_xcom_push=False,             # no log XCom
-        is_delete_operator_pod=False,   # keep Flask alive after task ends
+        is_delete_operator_pod=True,   # keep Flask alive after task ends
         labels={                        # add this block
             "app": "transaction-tally"
         },
