@@ -15,5 +15,5 @@ WORKDIR /app
 COPY . .
 
 EXPOSE 5000
-ENTRYPOINT ["python"]
-CMD ["app.py"]
+# ENTRYPOINT ["python"]
+CMD ["sh","-c","if [ -f /app/.env ]; then set -a && . /app/.env; fi && exec python run.py"]
