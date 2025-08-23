@@ -16,4 +16,4 @@ COPY . .
 
 EXPOSE 5000
 # ENTRYPOINT ["python"]
-CMD ["sh","-c","if [ -f ./.env ]; then set -a && . ./.env; fi && exec python run.py"]
+CMD ["python run.py"]
