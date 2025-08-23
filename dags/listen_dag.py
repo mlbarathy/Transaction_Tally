@@ -3,6 +3,12 @@ from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import Kubernete
 from airflow.utils.dates import days_ago
 from airflow.kubernetes.secret import Secret
 
+env_secret = Secret(
+    deploy_type="env",             # inject as env vars
+    deploy_target=None,            # load all keys
+    secret="transaction-tally-env", # k8s Secret with your .env content
+)
+
 # DAG definition
 with DAG(
     dag_id="transaction_tally_dag",
@@ -25,28 +31,21 @@ with DAG(
         labels={                        # add this block
             "app": "transaction-tally"
         },
-        env_vars={
-            "POSTGRES_HOST": "transaction-db-postgresql.test.svc.cluster.local",
-            "POSTGRES_PORT": "5432",
-            "POSTGRES_USER": "postgres",
-            "POSTGRES_DB": "postgres",
-            "KAFKA_BOOTSTRAP_SERVERS": "kafka-kafka-bootstrap.kafka:9092",
-            "KAFKA_TOPIC": "test-topic"
+        secrets=[env_secret],
+        # env_vars={
+        #     "POSTGRES_HOST": "transaction-db-postgresql.test.svc.cluster.local",
+        #     "POSTGRES_PORT": "5432",
+        #     "POSTGRES_USER": "postgres",
+        #     "POSTGRES_DB": "postgres",
+        #     "KAFKA_BOOTSTRAP_SERVERS": "kafka-kafka-bootstrap.kafka:9092",
+        #     "KAFKA_TOPIC": "test-topic"
 
-            # --- spark identity fixes --- 
-            # "SPARK_LOCAL_HOSTNAME": "localhost", 
-            # "SPARK_LOCAL_IP": "127.0.0.1", 
-            # "SPARK_DRIVER_PORT": "7078", 
-            # "SPARK_BLOCKMANAGER_PORT": "7079",
-        },
-        secrets=[
-            Secret(
-                deploy_type="env",
-                deploy_target="POSTGRES_PASSWORD",
-                secret="transaction-db-postgresql",
-                key="postgres-password"
-            )
-        ]
+        #     # --- spark identity fixes --- 
+        #     # "SPARK_LOCAL_HOSTNAME": "localhost", 
+        #     # "SPARK_LOCAL_IP": "127.0.0.1", 
+        #     # "SPARK_DRIVER_PORT": "7078", 
+        #     # "SPARK_BLOCKMANAGER_PORT": "7079",
+        # },
     )
 
     # 2. Sensor pod (keeps checking Flask /health endpoint until ready)
