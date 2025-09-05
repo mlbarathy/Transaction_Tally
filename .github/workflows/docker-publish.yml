@@ -4,6 +4,7 @@ on:
   push:
     paths-ignore:
       - 'dags/**'
+      - '.github/**'
     branches:
       - DEV_1
 
