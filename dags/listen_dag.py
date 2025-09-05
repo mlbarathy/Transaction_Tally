@@ -19,62 +19,26 @@ with DAG(
         service_account_name="dagsvc",
         image="ghcr.io/vishnu-thirumangalath/docker-images/transaction-tally:latest",
         cmds=["python", "run.py"],
-        get_logs=False,                 # don’t tail logs forever
-        do_xcom_push=False,             # no log XCom
-        is_delete_operator_pod=True,   # keep Flask alive after task ends
-        labels={                        # add this block
+        get_logs=True,                 # enable logs so you can debug
+        do_xcom_push=False,            # no log XCom
+        is_delete_operator_pod=True,   # pod removed after completion
+        labels={
             "app": "transaction-tally"
         },
-        env_vars={
-            "POSTGRES_HOST": "transaction-db-postgresql.test.svc.cluster.local",
-            "POSTGRES_PORT": "5432",
-            "POSTGRES_USER": "postgres",
-            "POSTGRES_DB": "postgres",
-            "KAFKA_BOOTSTRAP_SERVERS": "kafka-kafka-bootstrap.kafka:9092",
-            "KAFKA_TOPIC": "test-topic",
-            "CHECKPOINT_LOC": "/tmp/flaskstream"
-
-            # --- spark identity fixes --- 
-            # "SPARK_LOCAL_HOSTNAME": "localhost", 
-            # "SPARK_LOCAL_IP": "127.0.0.1", 
-            # "SPARK_DRIVER_PORT": "7078", 
-            # "SPARK_BLOCKMANAGER_PORT": "7079",
-        },
-        secrets=[
-            Secret(
-                deploy_type="env",
-                deploy_target="POSTGRES_PASSWORD",
-                secret="transaction-db-postgresql",
-                key="postgres-password"
-            )
-        ]
+        # 🔑 Inject all env vars from your Kubernetes Secret
+        env_from=[{"secret_ref": {"name": "env-secrets"}}]
     )
 
     # 2. Sensor pod (keeps checking Flask /health endpoint until ready)
     flask_sensor = KubernetesPodOperator(
-        task_id="flask_sensor",
-        name="flask-sensor-curl",
-        namespace="test",
-        service_account_name="dagsvc",
-        image="curlimages/curl:8.2.1",
-        cmds=["sh", "-c"],
-        arguments=[
-            """
-            for i in $(seq 1 30); do
-              echo "Checking Flask health... attempt $i";
-              if curl -sf http://transaction-tally.test.svc.cluster.local:5000/health; then
-                echo "service ok";
-                exit 0;
-              fi;
-              sleep 5;
-            done;
-            echo "Flask did not become ready in time";
-            exit 1
-            """
-        ],
-        get_logs=True,
-        is_delete_operator_pod=True,
+    task_id="use_secrets",
+    namespace="test",
+    image="alpine:3.18",
+    cmds=["sh", "-c"],
+    arguments=["echo DB=$POSTGRES_DB && echo KAFKA=$KAFKA_TOPIC"],
+    env_from=[{"secret_ref": {"name": "env-secrets"}}],
     )
+
 
     # DAG flow (sequential)
     [run_python_app,flask_sensor]
