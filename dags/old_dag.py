@@ -12,7 +12,7 @@ with DAG(
 ) as dag:
 
     # 1. Run Flask app pod (kept alive, task ends immediately after creation)
-    run_python_app = KubernetesPodOperator(
+    run_python_app_old = KubernetesPodOperator(
         task_id="run_transaction_tally",
         name="transaction-tally",
         namespace="test",
@@ -51,7 +51,7 @@ with DAG(
     )
 
     # 2. Sensor pod (keeps checking Flask /health endpoint until ready)
-    flask_sensor = KubernetesPodOperator(
+    flask_sensor_old = KubernetesPodOperator(
         task_id="flask_sensor",
         name="flask-sensor-curl",
         namespace="test",
