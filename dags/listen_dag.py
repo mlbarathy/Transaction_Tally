@@ -31,14 +31,16 @@ with DAG(
 
     # 2. Sensor pod (keeps checking Flask /health endpoint until ready)
     flask_sensor = KubernetesPodOperator(
-    task_id="use_secrets",
-    namespace="test",
-    image="alpine:3.18",
-    cmds=["sh", "-c"],
-    arguments=["echo DB=$POSTGRES_DB && echo KAFKA=$KAFKA_TOPIC"],
-    env_from=[{"secret_ref": {"name": "env-secrets"}}],
+        task_id="use_secrets",
+        name="flask-sensor",
+        namespace="test",
+        image="alpine:3.18",
+        cmds=["sh", "-c"],
+        arguments=["echo DB=$POSTGRES_DB && echo KAFKA=$KAFKA_TOPIC"],
+        env_from=[{"secret_ref": {"name": "env-secrets"}}],
     )
 
 
     # DAG flow (sequential)
     [run_python_app,flask_sensor]
+
