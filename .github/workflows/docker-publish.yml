@@ -2,6 +2,8 @@ name: Build & Push PySpark Image
 
 on:
   push:
+    paths-ignore:
+      - 'dags/**'
     branches:
       - DEV_1
 
