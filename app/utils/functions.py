@@ -56,6 +56,7 @@ def get_db_config():
 
 def create_spark_session():
     db_conf = get_db_config()
+    print("SAPRK SESSION IS GETTING CREATED")
     return (
         SparkSession.builder \
             .appName("KafkaToDB") \

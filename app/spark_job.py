@@ -5,8 +5,16 @@ def start_spark_stream():
     spark = create_spark_session()
     spark.sparkContext.setLogLevel("ERROR")
 
+
     db_conf = get_db_config()
+    print(db_conf)
+    if SparkSession.getActiveSession():
+        print("✅ Spark Session Is Active.")
+    else:
+        print("❌ No Active Spark Session Found.")
+
     print("🚀 Spark Streaming Job Started.")
+
     print(f"📡 Kafka-Topic: {KAFKA_TOPIC}")
     print(f"🗄️  Target DB : {TARGET_DB} - Target Trxn Table : {db_conf['main_table']} - "
           f"Target History Table : {db_conf['history_table']} ")
@@ -19,6 +27,7 @@ def start_spark_stream():
         .option("subscribe", KAFKA_TOPIC)
         .option("startingOffsets", "latest")
         .option("maxOffsetsPerTrigger", 10000)
+        .option("kafka.security.protocol", "PLAINTEXT")
         .load()
     )
 
